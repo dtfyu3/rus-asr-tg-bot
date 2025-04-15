@@ -24,54 +24,33 @@ if (!$input || !isset($input['message'])) {
 }
 $message = $input['message'];
 $chat_id = $message['chat']['id'];
-
 try {
-    if (isset($message['voice']) || isset($message['audio'])) {
-        $file_id = $message['voice']['file_id'] ?? $message['audio']['file_id'];
-
-        // 1. Уведомление "Идет обработка..."
+    if (isset($message['voice'])) {
         send_action($chat_id, 'typing');
         send_message($chat_id, "🎧 Обрабатываю аудио...");
-
-        // 2. Скачивание файла
-        send_action($chat_id, 'upload_audio');
-        $file_path = download_file($file_id);
-
-        if (!$file_path) {
-            send_message($chat_id, "❌ Ошибка загрузки файла");
-            exit;
-        }
-
-        // 3. Конвертация
-        send_action($chat_id, 'upload_document');
-        $wav_path = convert_to_wav($file_path);
-
-        if (!$wav_path) {
-            send_message($chat_id, "❌ Ошибка конвертации аудио");
-            exit;
-        }
-
-        // 4. Распознавание
+        $result = process_audio($message['voice'], 'voice');
+    } elseif (isset($message['audio'])) {
         send_action($chat_id, 'typing');
-        send_message($chat_id, "🔍 Распознаю речь...");
-
-        $text = send_to_asr($wav_path);
-
-        // 5. Результат
-        if (!empty($text)) {
-            send_message($chat_id, "✅ Результат:\n" . $text);
-        } else {
-            send_message($chat_id, "❌ Не удалось распознать речь");
-        }
-
-        // Очистка
-        @unlink($file_path);
-        @unlink($wav_path);
+        send_message($chat_id, "🎧 Обрабатываю аудио...");
+        $result = process_audio($message['audio'], 'audio');
+    } elseif (isset($message['document']) && strpos($message['document']['mime_type'], 'audio/') === 0) {
+        send_action($chat_id, 'typing');
+        send_message($chat_id, "🎧 Обрабатываю аудио...");
+        $result = process_audio($message['document'], 'document');
     } else {
-        send_message($chat_id, "📎 Отправьте мне голосовое сообщение или аудиофайл");
+        send_message($chat_id, "Пожалуйста, отправьте голосовое сообщение или аудиофайл (поддерживаются WAV, MP3, OGG)");
+        exit;
+    }
+    send_action($chat_id, 'typing');
+    send_message($chat_id, "🔍 Распознаю речь...");
+    if ($result['success']) {
+        $text = $result['text'] ?: "Речь не распознана";
+        send_message($chat_id, $text);
+    } else {
+        send_message($chat_id, "Ошибка: " . $result['error']);
     }
 } catch (Exception $e) {
-    send_message($chat_id, "⚠️ Произошла ошибка, попробуйте позже");
+    send_message($chat_id, "Произошла ошибка при обработке аудио");
     error_log("Error: " . $e->getMessage());
 }
 
