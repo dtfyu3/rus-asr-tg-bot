@@ -4,7 +4,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 // $BOT_TOKEN = getenv("BOT_TOKEN");
 // $ASR_ENDPOINT = getenv("ASR_ENDPOINT");
 define('BOT_TOKEN', getenv("BOT_TOKEN"));
-define('ASR_ENDPOINT', getenv("ASR_ENDPOINT") . "/transcribe");
+define('ASR_ENDPOINT', getenv("ASR_ENDPOINT") . ":5000/transcribe");
 define('TEMP_DIR', __DIR__ . '/tmp_audio');
 define('MAX_FILE_SIZE', 16 * 1024 * 1024);
 
@@ -24,6 +24,21 @@ if (!$input || !isset($input['message'])) {
 }
 $message = $input['message'];
 $chat_id = $message['chat']['id'];
+
+function send_action($chat_id, $action)
+{
+    file_get_contents("https://api.telegram.org/bot" . BOT_TOKEN . "/sendChatAction", false, stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => 'Content-Type: application/json',
+            'content' => json_encode([
+                'chat_id' => $chat_id,
+                'action' => $action
+            ])
+        ]
+    ]));
+}
+
 try {
     if (isset($message['voice'])) {
         send_action($chat_id, 'typing');
@@ -38,13 +53,13 @@ try {
         send_message($chat_id, "🎧 Обрабатываю аудио...");
         $result = process_audio($message['document'], 'document');
     } else {
-        send_message($chat_id, "Пожалуйста, отправьте голосовое сообщение или аудиофайл (поддерживаются WAV, MP3, OGG)");
+        send_message($chat_id, "Пожалуйста, отправьте голосовое сообщение или аудиофайл (поддерживаются WAV, MP3, OGG) до {$MAX_FILE_SIZE/(1024 * 1024)}Мб");
         exit;
     }
     send_action($chat_id, 'typing');
     send_message($chat_id, "🔍 Распознаю речь...");
     if ($result['success']) {
-        $text = $result['text'] ?: "Речь не распознана";
+        $text = "```" . $result['text'] . "```\n" ?: "Речь не распознана";
         send_message($chat_id, $text);
     } else {
         send_message($chat_id, "Ошибка: " . $result['error']);
@@ -150,7 +165,8 @@ function send_message($chat_id, $text)
         'http' => [
             'method' => 'POST',
             'header' => "Content-Type: application/json\r\n",
-            'content' => json_encode($data)
+            'content' => json_encode($data),
+            'parse_mode' => "Markdown"
         ]
     ];
 
@@ -163,18 +179,3 @@ if (rand(1, 10) === 1) {
         }
     }
 }
-
-    function send_action($chat_id, $action)
-{
-    file_get_contents("https://api.telegram.org/bot" . BOT_TOKEN . "/sendChatAction", false, stream_context_create([
-        'http' => [
-            'method' => 'POST',
-            'header' => 'Content-Type: application/json',
-            'content' => json_encode([
-                'chat_id' => $chat_id,
-                'action' => $action
-            ])
-        ]
-    ]));
-}
-?>
