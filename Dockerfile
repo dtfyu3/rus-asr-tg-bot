@@ -16,4 +16,4 @@ COPY . /var/www/
 RUN a2enmod rewrite
 
 # Убедимся, что все права на файлы настроены корректно
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/
