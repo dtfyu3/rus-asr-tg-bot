@@ -163,4 +163,18 @@ if (rand(1, 10) === 1) {
         }
     }
 }
+
+    function send_action($chat_id, $action)
+{
+    file_get_contents("https://api.telegram.org/bot" . BOT_TOKEN . "/sendChatAction", false, stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => 'Content-Type: application/json',
+            'content' => json_encode([
+                'chat_id' => $chat_id,
+                'action' => $action
+            ])
+        ]
+    ]));
+}
 ?>
