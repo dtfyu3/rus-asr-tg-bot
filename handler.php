@@ -1,10 +1,10 @@
 <?php
 $input = json_decode(file_get_contents('php://input'), true);
-$SECRET_TOKEN = getenv("SECRET_TOKEN");
-$BOT_TOKEN = getenv("BOT_TOKEN");
-$ASR_ENDPOINT = getenv("ASR_ENDPOINT");
+// $SECRET_TOKEN = getenv("SECRET_TOKEN");
+// $BOT_TOKEN = getenv("BOT_TOKEN");
+// $ASR_ENDPOINT = getenv("ASR_ENDPOINT");
 define('BOT_TOKEN', getenv("BOT_TOKEN"));
-define('ASR_ENDPOINT', getenv("ASR_ENDPOINT:5000/transcribe"));
+define('ASR_ENDPOINT', getenv("ASR_ENDPOINT") . ":5000/transcribe");
 define('TEMP_DIR', __DIR__ . '/tmp_audio');
 define('MAX_FILE_SIZE', 16 * 1024 * 1024);
 
