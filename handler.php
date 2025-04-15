@@ -56,7 +56,8 @@ try {
     send_action($chat_id, 'typing');
     send_message($chat_id, "🔍 Распознаю речь...");
     if ($result['success']) {
-        $text = "```" . $result['text'] . "```\n" ?: "Речь не распознана";
+        if($result['text'])   $text = "Вот что мне удалось услышать:\n```" . $result['text'] . "```\n";
+        else $text = "Речь не распознана";
         send_message($chat_id, $text);
     } else {
         send_message($chat_id, "Ошибка: " . $result['error']);
