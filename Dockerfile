@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install zip
 
 # Копируем проект внутрь контейнера
-COPY . /var/www/html/
+COPY . /var/www/
 
 # Разрешаем .htaccess (если понадобится)
 RUN a2enmod rewrite
