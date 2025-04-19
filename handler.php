@@ -135,6 +135,7 @@ function send_to_asr($audio_path)
     curl_setopt($ch, CURLOPT_URL, ASR_ENDPOINT);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 120);
 
     $post_fields = [
         'audio' => new CURLFile($audio_path, 'audio/wav', 'audio.wav')
@@ -145,7 +146,11 @@ function send_to_asr($audio_path)
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if ($http_code !== 200) {
+    if(!response){
+        return "⏳ Модель ещё не активна. Попробуйте позже.";
+        exit;
+    }
+    if ($repsonse && $http_code !== 200) {
         error_log("ASR Error: " . $response);
         return false;
     }
