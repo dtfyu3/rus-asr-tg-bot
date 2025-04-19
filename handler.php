@@ -61,9 +61,10 @@ try {
         if($result['text'])   $text = "Вот что мне удалось услышать:\n```\n" . $result['text'] . "```\n";
         else $text = "Речь не распознана";
         send_message($chat_id, $text);
-    } else {
-        send_message($chat_id, "Ошибка: " . $result['error']);
     }
+    // else {
+    //     send_message($chat_id, "Ошибка: " . $result['error']);
+    // }
 } catch (Exception $e) {
     send_message($chat_id, "Произошла ошибка при обработке аудио");
     error_log("Error: " . $e->getMessage());
