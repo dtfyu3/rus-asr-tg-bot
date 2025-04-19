@@ -146,10 +146,6 @@ function send_to_asr($audio_path)
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if(!$response){
-        return "⏳ Модель ещё не активна. Попробуйте позже.";
-        exit;
-    }
     if ($repsonse && $http_code !== 200) {
         error_log("ASR Error: " . $response);
         return false;
