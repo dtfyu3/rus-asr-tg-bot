@@ -62,9 +62,9 @@ try {
         else $text = "Речь не распознана";
         send_message($chat_id, $text);
     }
-    // else {
-    //     send_message($chat_id, "Ошибка: " . $result['error']);
-    // }
+    else {
+        send_message($chat_id, "Ошибка: " . $result['error']);
+    }
 } catch (Exception $e) {
     send_message($chat_id, "Произошла ошибка при обработке аудио");
     error_log("Error: " . $e->getMessage());
@@ -93,8 +93,7 @@ function process_audio($file_info, $type)
     unlink($file_path);
     unlink($wav_path);
 
-    // return ['success' => true, 'text' => $text];
-    return $text;
+    return ['success' => true, 'text' => $text];
 }
 function download_file($file_id)
 {
