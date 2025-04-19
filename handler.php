@@ -56,6 +56,7 @@ try {
     }
     send_action($chat_id, 'typing');
     send_message($chat_id, "🔍 Распознаю речь...");
+    echo($result);
     if ($result['success']) {
         if($result['text'])   $text = "Вот что мне удалось услышать:\n```\n" . $result['text'] . "```\n";
         else $text = "Речь не распознана";
@@ -91,7 +92,8 @@ function process_audio($file_info, $type)
     unlink($file_path);
     unlink($wav_path);
 
-    return ['success' => true, 'text' => $text];
+    // return ['success' => true, 'text' => $text];
+    return $text;
 }
 function download_file($file_id)
 {
