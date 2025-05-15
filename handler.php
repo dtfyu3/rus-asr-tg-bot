@@ -44,7 +44,7 @@ try {
     } elseif (isset($message['audio'])) {
         send_action($chat_id, 'typing');
         send_message($chat_id, "🎧 Обрабатываю аудио...");
-        $result = process_audio($message['audio'], 'audio');
+        $result = process_audio($message['audio'], 'audio',$chat_id);
     } elseif (isset($message['document']) && strpos($message['document']['mime_type'], 'audio/') === 0) {
         send_action($chat_id, 'typing');
         send_message($chat_id, "🎧 Обрабатываю аудио...");
@@ -68,7 +68,7 @@ try {
     error_log("Error: " . $e->getMessage());
 }
 
-function process_audio($file_info, $type)
+function process_audio($file_info, $type,$chat_id)
 {
     $file_id = $file_info['file_id'];
     $file_path = download_file($file_id);
