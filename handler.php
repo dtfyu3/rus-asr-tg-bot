@@ -54,8 +54,7 @@ try {
         send_message($chat_id, "Пожалуйста, отправьте голосовое сообщение или аудиофайл (поддерживаются WAV, MP3, OGG) до {$size} Мб");
         exit;
     }
-    send_action($chat_id, 'typing');
-    send_message($chat_id, "🔍 Распознаю речь...");
+   
     if ($result['success']) {
         if($result['text'])   $text = "Вот что мне удалось услышать:\n```\n" . $result['text'] . "```\n";
         else $text = "Речь не распознана";
@@ -77,7 +76,8 @@ function process_audio($file_info, $type)
     if (!$file_path) {
         return ['success' => false, 'error' => 'Не удалось загрузить файл'];
     }
-
+    send_action($chat_id, 'typing');
+    send_message($chat_id, "🔍 Распознаю речь...");
     // Конвертируем в WAV если нужно
     $wav_path = convert_to_wav($file_path);
     if (!$wav_path) {
