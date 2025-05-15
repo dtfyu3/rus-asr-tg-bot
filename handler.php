@@ -40,7 +40,7 @@ try {
     if (isset($message['voice'])) {
         send_action($chat_id, 'typing');
         send_message($chat_id, "🎧 Обрабатываю аудио...");
-        $result = process_audio($message['voice'], 'voice');
+        $result = process_audio($message['voice'], 'voice',$chat_id);
     } elseif (isset($message['audio'])) {
         send_action($chat_id, 'typing');
         send_message($chat_id, "🎧 Обрабатываю аудио...");
@@ -48,7 +48,7 @@ try {
     } elseif (isset($message['document']) && strpos($message['document']['mime_type'], 'audio/') === 0) {
         send_action($chat_id, 'typing');
         send_message($chat_id, "🎧 Обрабатываю аудио...");
-        $result = process_audio($message['document'], 'document');
+        $result = process_audio($message['document'], 'document',$chat_id);
     } else {
         $size = MAX_FILE_SIZE / (1024 * 1024);
         send_message($chat_id, "Пожалуйста, отправьте голосовое сообщение или аудиофайл (поддерживаются WAV, MP3, OGG) до {$size} Мб");
@@ -67,7 +67,7 @@ try {
     error_log("Error: " . $e->getMessage());
 }
 
-function process_audio($file_info, $type, $chat_id = false)
+function process_audio($file_info, $type, $chat_id)
 {
     $file_id = $file_info['file_id'];
     $file_path = download_file($file_id);
@@ -75,10 +75,8 @@ function process_audio($file_info, $type, $chat_id = false)
     if (!$file_path) {
         return ['success' => false, 'error' => 'Не удалось загрузить файл'];
     }
-    if($chat_id){
-        send_action($chat_id, 'typing');
-        send_message($chat_id, "🔍 Распознаю речь...");
-    }
+    send_action($chat_id, 'typing');
+    send_message($chat_id, "🔍 Распознаю речь...");
     // Конвертируем в WAV если нужно
     $wav_path = convert_to_wav($file_path);
     if (!$wav_path) {
